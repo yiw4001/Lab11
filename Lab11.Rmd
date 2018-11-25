@@ -1,0 +1,88 @@
+---
+title: "Lab11"
+author: "Yi Wang"
+date: "11/21/2018"
+output: html_document
+---
+
+```{r}
+
+```
+#1. Write a function that generates numbers from binomial(n, p) distribution using runif() function. Hint: binomial(n, p) random variable can be defined as a sum of n independent Bernoulli(p) random variables.
+
+```{r}
+
+f <- function(s, n, p){
+  rbi <- vector(length = s)
+  for (i in 1: s) {
+    rn <- runif(n)
+    rb <- as.numeric(rn < p)
+    rbi[i] <- sum(rb)
+  }
+    return(rbi)
+}
+
+
+```
+
+#2. Compare performance of your function with rbinom() using microbenchmark() function.
+
+```{r}
+library(microbenchmark)
+rbinom(100, 3, 0.5)
+f(100, 3, 0.5)
+
+microbenchmark(rbinom(100, 3, 0.5), f(100, 3, 0.5))
+```
+
+3. Suppose we want to simulate data from a linear regression model:
+
+Yi = $\beta_0$ + $\beta_1$ × Xi + $\epsilon_i$ = 1, ..., N
+
+where $\epsilon$ ~ N(0, 3) and X is a covariate that ranges between 20 and 40. Let $\beta_0$ = 15 and $\beta_1$ = 0.4 are known coefficients. Generate data (N = 50) from this models with given coefficients. Fit a linear regression model and plot fitted values vs residuals using ggplot() function. Please do not forget to use set.seed() function for reproducibility.
+
+```{r}
+library(ggplot2)
+set.seed(123)
+beta0 <- 15
+beta1 <- 0.4
+xl <- 20
+xh <- 40
+N <- 50
+eps <- rnorm(N, 0, 3)
+x <- runif(N, xl, xh)
+y <- beta0 + beta1 * x + eps
+
+fit <- lm(y~x)
+
+ggplot(mapping = aes(fit$fitted.values, fit$residuals)) +
+  geom_point() + 
+  labs(x = "Fitted value", y = "Risiduals", title = "Linear Regression Model")
+
+```
+
+4. Box-Muller algorithm: generate U1 and U2 two independent uniform(0, 1) random variables and set:
+R = $\sqrt{−2log(U1)}$ and $\theta$ = 2$\pi$U2
+then
+X = Rcos($\theta$) and Y = Rsin($\theta$)
+are two independent normal variables. Write a function that generates normal variates using Box-Muller algorithm. Compare simulated data from your function with simulated data from rnorm() function using ggplot() (histogram?).
+
+```{r}
+n = 5000;
+U1 = runif(n)
+U2 = runif(n)
+X = sqrt(-2 * log(U1)) * cos(2 * pi * U2)
+Y = sqrt(-2 * log(U1)) * sin(2 * pi * U2)
+X1 <- rnorm(2* 5000)
+X2 <- c(X, Y)
+
+ggplot() +
+  geom_histogram(aes(X2), bins = 30, col = "Green", fill = NA) +
+  geom_histogram(aes(X1), bins = 30, col = "red", fill = NA) +
+  labs(x = "Box-Muller and rnorm") +
+  theme_classic()
+
+  
+
+```
+
